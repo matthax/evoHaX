@@ -3,8 +3,9 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'SendGrid',
   auth: {
-    user: process.env.SENDGRID_USER,
-    pass: process.env.SENDGRID_PASSWORD
+    api_key: process.env.SENDGRID_API_KEY,
+    //user: process.env.SENDGRID_USER,
+    //pass: process.env.SENDGRID_PASSWORD
   }
 });
 
@@ -28,16 +29,16 @@ exports.postContact = (req, res) => {
   req.assert('message', 'Message cannot be blank').notEmpty();
 
   const errors = req.validationErrors();
-
+  console.log([process.env.SENDGRID_USER, process.env.SENDGRID_PASSWORD, process.env.SENDGRID_API_KEY].join("\n"));
   if (errors) {
     req.flash('errors', errors);
     return res.redirect('/contact');
   }
 
   const mailOptions = {
-    to: 'your@email.com',
+    to: 'markblack001@gmail.com',
     from: `${req.body.name} <${req.body.email}>`,
-    subject: 'Contact Form | Hackathon Starter',
+    subject: 'Drugs.com | Thanks for your recent order!',
     text: req.body.message
   };
 
