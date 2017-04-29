@@ -37,6 +37,28 @@ exports.getApi = (req, res) => {
 };
 
 /**
+ * GET /api/septa
+ * Septa API example.
+ */
+exports.getSepta = (req, res, next) => {
+  
+  Promise.all([
+    foursquare.Venues.getTrendingAsync('40.7222756', '-74.0022724', { limit: 50 }, token.accessToken),
+    foursquare.Venues.getVenueAsync('49da74aef964a5208b5e1fe3', token.accessToken),
+    foursquare.Users.getCheckinsAsync('self', null, token.accessToken)
+  ])
+  .then(([trendingVenues, venueDetail, userCheckins]) => {
+    res.render('api/foursquare', {
+      title: 'Foursquare API',
+      trendingVenues,
+      venueDetail,
+      userCheckins
+    });
+  })
+  .catch(next);
+};
+
+/**
  * GET /api/foursquare
  * Foursquare API example.
  */
