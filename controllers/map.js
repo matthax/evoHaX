@@ -1,8 +1,8 @@
 /**
  * GET /map
- * Contact form page.
+ * Map page.
  */
-exports.getContact = (req, res) => {
+exports.getMap = (req, res) => {
     res.render('map', {
         title: 'Map'
     });
