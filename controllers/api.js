@@ -41,8 +41,9 @@ exports.getApi = (req, res) => {
  * Septa API example.
  */
 exports.getSepta = (req, res, next) => {
-  //const wantsJson = /application\/json;/.test(req.get('accept')) ? true : false;
-  /*Promise.all([
+    //const wantsJson = /application\/json;/.test(req.get('accept')) ? true : false;
+    const token = req.user.tokens.find(token => token.kind === 'foursquare');
+  Promise.all([
     foursquare.Venues.getTrendingAsync('40.7222756', '-74.0022724', { limit: 50 }, token.accessToken),
     foursquare.Venues.getVenueAsync('49da74aef964a5208b5e1fe3', token.accessToken),
     foursquare.Users.getCheckinsAsync('self', null, token.accessToken)
@@ -55,7 +56,7 @@ exports.getSepta = (req, res, next) => {
       userCheckins
     });
   })
-  .catch(next);*/
+  .catch(next);
   //console.log("SEPTA in json?", wantsJson);
 };
 
