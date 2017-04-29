@@ -1,47 +1,32 @@
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
 
-# Folder config file
-Desktop.ini
+pids
+logs
+results
+tmp
 
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
+#Build
+public/css/main.css
 
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
+# API keys and secrets
+.env
 
-# Windows shortcuts
-*.lnk
+# Dependency directory
+node_modules
+bower_components
 
-# =========================
-# Operating System Files
-# =========================
+# Editors
+.idea
+*.iml
 
-# OSX
-# =========================
-
+# OS metadata
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
+Thumbs.db
