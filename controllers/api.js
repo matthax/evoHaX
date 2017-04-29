@@ -56,7 +56,7 @@ exports.getSepta = (req, res, next) => {
     });
   })
   .catch(next);*/
-  console.log("SEPTA in json?", wantsJson);
+  //console.log("SEPTA in json?", wantsJson);
 };
 
 /**
