@@ -17,7 +17,7 @@ class SeptaPoint {
     }
 }
 /* Is a location within the specified radius (Kilometers) */
-SeptaPoint.prototype.near = function(lat, long, radius = 2) {
+SeptaPoint.prototype.near = function(lat, long, radius = 1) {
     var ky = 40000 / 360;
     var kx = Math.cos(Math.PI * this.location.latitude / 180.0) * ky;
     var dx = Math.abs(this.location.longitude - long) * kx;

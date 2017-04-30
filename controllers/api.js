@@ -42,15 +42,36 @@ exports.getApi = (req, res) => {
  * Septa API example.
  */
 exports.getSepta = (req, res, next) => {
-    //const wantsJson = /application\/json;/.test(req.get('accept')) ? true : false;
     //39.9541, -75.1668
-    Promise.all([septa.places.all(39.9541, -75.1668), septa.vehicles.near(39.9541, -75.1668)]).then(([places, location]) => {
-      res.render('api/septa', {
-        title: 'Septa API',
-        trains: location.trains,
-        busses: location.busses,
-        places: places,
-      })
+    var { lat, lon, radius, type } = req.query;
+    if (typeof lat === "undefined") {
+      lat = 39.9541;
+    }
+    if (typeof lon === "undefined") {
+      lon = -75.1668;
+    }
+    if (typeof radius === "undefined") {
+      radius = .5;
+    }
+    const wantsJson = /application\/json;/.test(req.get('accept')) ? true : (type == "json" ? true : false);
+    //console.log(lat, lon, radius, req.query);
+    Promise.all([septa.places.all(lat, lon, radius), septa.vehicles.near(lat, lon, radius)]).then(([places, location]) => {
+      if (wantsJson) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
+          trains: location.trains,
+          busses: location.busses,
+          places: places,
+        }));
+      }
+      else {
+        res.render('api/septa', {
+          title: 'Septa API',
+          trains: location.trains,
+          busses: location.busses,
+          places: places,
+        });
+      }
     }).catch(next);
   //console.log("SEPTA in json?", wantsJson);
 };
