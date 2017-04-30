@@ -2,16 +2,64 @@ extends ../layout
 
 block content
   h2
+    i.fa.fa-train
+    | Trains
+  table.table(class='table-striped table-hover')
+    thead
+      tr
+        th Train
+        th From
+        th Destination
+        th Next Stop
+        th Coordinates
+    tbody
+      each train,i in trains
+        tr
+          td #{train.ID}
+          td #{train.Start}
+          td #{train.Destination}
+          td #{train.NextStop}
+          td #{train.location.latitude + ", " + train.location.longitude}
+  
+  h2
     i.fa.fa-bus
-    | Septa API
-
-  .btn-group.btn-group-justified
-    a.btn.btn-primary(href='http://developer.github.com/guides/getting-started/', target='_blank')
-      i.fa.fa-check-square-o
-      | Getting Started
-    a.btn.btn-primary(href='https://apigee.com/console/github', target='_blank')
-      i.fa.fa-laptop
-      | API Console
-    a.btn.btn-primary(href='http://developer.github.com/v3/', target='_blank')
-      i.fa.fa-file-text-o
-      | Documentation
+    | Busses
+  table.table(class='table-striped table-hover')
+    thead
+      tr
+        th Busses
+        th Destination
+        th Direction
+        th Trip
+        th Coordinates
+    tbody
+      each bus,i in busses
+        tr
+          td #{bus.ID}
+          td #{bus.Destination}
+          td #{bus.Direction}
+          td #{bus.Trip}
+          td #{bus.location.latitude + ", " + bus.location.longitude}
+  h2
+    i.fa.fa-map-marker
+    | Places
+  table.table(class='table-striped table-hover')
+    thead
+      tr
+        th Place
+        th Type
+        th Address
+        th Distance
+        th Coordinates
+        th Info
+    tbody
+      each place,i in places
+        - var icon = place.Type == 'bus_stops' ? 'fa-bus' : (place.Type == 'rail_stations' ? 'fa-train' : (place.Type == 'sales_locations' ? 'fa-money' : (place.Type == 'perk_locations' ? 'fa-plus-circle' : 'fa-shopping-cart')))
+        tr
+          td #{place.Name}
+          td
+            i.fa(class=icon)
+          td #{place.Details.Address1 + " " + place.Details.Address2 + " " + place.Details.City + ", " + place.Details.State}
+          td #{place.Distance}
+          td #{place.location.latitude + ", " + place.location.longitude}
+          td #{place.Text}

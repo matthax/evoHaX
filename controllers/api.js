@@ -43,11 +43,15 @@ exports.getApi = (req, res) => {
  */
 exports.getSepta = (req, res, next) => {
     //const wantsJson = /application\/json;/.test(req.get('accept')) ? true : false;
-    var test = septa.locations.vehicles.near(39.9541, -75.1668);
-    console.log(test);
-    res.render('api/septa', {
-      title: 'Septa API',
-    });
+    //39.9541, -75.1668
+    Promise.all([septa.places.all(39.9541, -75.1668), septa.vehicles.near(39.9541, -75.1668)]).then(([places, location]) => {
+      res.render('api/septa', {
+        title: 'Septa API',
+        trains: location.trains,
+        busses: location.busses,
+        places: places,
+      })
+    }).catch(next);
   //console.log("SEPTA in json?", wantsJson);
 };
 
@@ -407,7 +411,7 @@ exports.postTwilio = (req, res, next) => {
 
   const message = {
     to: req.body.number,
-    from: '+13472235148',
+    from: process.env.TWILIO_PHONE,
     body: req.body.message
   };
   twilio.sendMessage(message, (err, responseData) => {

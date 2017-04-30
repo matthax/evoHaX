@@ -1,9 +1,9 @@
 var fetch = require('node-fetch');
-const bluebird = require('bluebird');
+const Promise = require('bluebird');
 const ee = require('event-emitter');
 
 const endpoints = {
-    stations: 'http://www3.septa.org/hackathon/locations/get_locations.php',
+    locations: 'http://www3.septa.org/hackathon/locations/get_locations.php?',
     trainview: 'http://www3.septa.org/hackathon/TrainView/',
     trips: 'http://www3.septa.org/hackathon/TransitView/trips.php',
     transitviewall: 'http://www3.septa.org/hackathon/TransitViewAll/',
@@ -22,6 +22,7 @@ SeptaPoint.prototype.near = function(lat, long, radius = 2) {
     var kx = Math.cos(Math.PI * this.location.latitude / 180.0) * ky;
     var dx = Math.abs(this.location.longitude - long) * kx;
     var dy = Math.abs(this.location.latitude - lat) * ky;
+    //console.info(lat,long, Math.sqrt(dx * dx + dy * dy) <= radius);
     return Math.sqrt(dx * dx + dy * dy) <= radius;
 }
 class SeptaVehicle extends SeptaPoint {
@@ -54,19 +55,18 @@ class Train extends SeptaVehicle {
         this.ChangeTrack = props["TRACK_CHANGE"];
     }
 };
-function toVehicle (obj) {
+function asPromise (object) {
     return new Promise((resolve, reject) => {
-        var vehicle;
-
-        if (typeof obj["TRACK"] === "undefined") {
-            vehicle = new Bus(obj);
-        }
-        else {
-            vehicle = new Train(obj);
-        }
-        resolve(vehicle);
+        resolve(object);
     });
 }
+function toVehicle (obj) {
+    if (typeof obj["TRACK"] === "undefined") {
+        return new Bus(obj);
+    }
+    return new Train(obj);
+}
+
 function first (obj) {
     for (var i in obj) {
         if (obj.hasOwnProperty(i) && typeof(i) !== 'function') {
@@ -97,22 +97,20 @@ class Location extends SeptaPoint {
         }
     }
 };
-exports.locations = { 
-    vehicles: function () {
+exports.vehicles = function () {
         var vehicles = function() {
             this.near = function (lat, long) {
                 var nLat = parseFloat(lat), nLong = parseFloat(long);
                 var locations = [];
                 // could check if parse worked but we'll just continue and return nada
-                return Promise.all([fetch(endpoints.trainview).then(resp => resp.json()).then(trains => trains.map(train => toVehicle(train))),
+                return Promise.all([fetch(endpoints.trainview).then(resp => resp.json()).then(trains => trains.map(train => toVehicle(train)).filter(train => train.near(lat, long))),
                 fetch(endpoints.transitviewall).then(resp => resp.json()).then(r => {
-                    var vehicles = [].concat.apply([], first(r).map(el => first(el).map(vehicle => toVehicle(vehicle)
-                    )));
-                    return vehicles;
-                })]).filter(vehicle => vehicle.near(lat, long)).then(([trains,busses]) => {
+                    return [].concat.apply([], first(r).map(el => first(el).map(vehicle => toVehicle(vehicle)).filter(bus => bus.near(lat, long))));
+                })]).then(([trains,busses]) => {
                     this.trains = trains;
                     this.busses = busses;
                     emitter.emit('updated', busses, trains);
+                    return asPromise({trains: trains, busses: busses});
                 });
             };
             this.busses = [];
@@ -121,21 +119,34 @@ exports.locations = {
         ee(vehicles.prototype);
         var emitter = new vehicles(), listener;
         return new vehicles();
-    }(),
-    places: function () {
-        var lookup = function(type) {
-
+    }();
+exports.places = function () {
+        var lookup = function(type, lat, long, radius = 0.5, all = false) {
+            var params = {lat: lat, lon:long, radius: radius};
+            if (!Array.isArray(type)) {
+                type = [type];
+            }
+            return Promise.resolve(fetch(endpoints.locations + Object.keys(params)
+            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&'))
+            .then(resp => resp.json())).filter(location => all || type.indexOf(location["location_type"]) >= 0).map(location => new Location(location));
         };
-        var places = {
-            bus: lookup.bind(this, 'bus_stops'),
-            rail: lookup.bind(this, 'rail_stations'),
-            sales: lookup.bind(this, 'sales_locations'),
-            trolley: lookup.bind(this, 'trolley_stops'),
-            perk: lookup.bind(this, 'perk_locations'),
+        var places = function () {
+            this.busses = lookup.bind(this, 'bus_stops');
+            this.rail = lookup.bind(this, 'rail_stations');
+            this.sales = lookup.bind(this, 'sales_locations');
+            this.trolley = lookup.bind(this, 'trolley_stops');
+            this.perks = lookup.bind(this, 'perk_locations');
+            this.all = function (lat, long, radius = 0.5) {
+                return lookup("", lat, long, radius, true);
+            };
+            this.filter = function (types, lat, long, radius = 0.5) {
+                return lookup(types, lat, long, radius, false);
+            };
     };
-    return places;
-    }(),
-    routes: function () {
+    ee(places.prototype);
+    var emitter = new places(), listener;
+    return new places();
+}();
+exports.routes = function () {
 
-    },
-}
+};
