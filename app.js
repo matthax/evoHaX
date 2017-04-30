@@ -169,7 +169,7 @@ app.post('/api/upload', upload.single('myFile'), apiController.postFileUpload);
 app.get('/api/pinterest', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getPinterest);
 app.post('/api/pinterest', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.postPinterest);
 app.get('/api/google-maps', apiController.getGoogleMaps);
-app.get('/api/septa/*', apiController.getSepta);
+app.get('/api/septa', apiController.getSepta);
 
 /**
  * OAuth authentication routes. (Sign in)
