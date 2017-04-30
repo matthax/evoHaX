@@ -18,25 +18,24 @@ block content
     var map;
     var Buses = [
       {
+        id: 01,
         location: 'Suburban',
         latitude: 39.9541,
         longitude: -75.1668
       },
-      {
-        location: '30th Street',
-        latitude: 39.9558,
-        longitude: -75.1820
-      }
     ];
 
+    var busMarkers = []; 
+    var index = 0;
+      
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 39.9541, lng: -75.1668 },
         zoom: 15
       });
-
       Buses.forEach(function(bus) {
-        var marker = new google.maps.Marker({
+        index++;
+        busMarkers[index] = new google.maps.Marker({
           position: new google.maps.LatLng(bus.latitude, bus.longitude),
           icon: {
             url: 'data:image/png;base64,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',
@@ -46,7 +45,16 @@ block content
           title: bus.location,
         });
       });
+      //setTimeout(updateMap, 3000);
     }
-	
+    function updateMap(busId, latitude, longitude)
+    {
+        for(var i = 0; i <= busMarkers.length; i++)
+        {
+            if(busMarkers[i].id == busId)
+                busMarkers[i].setPosition(new google.maps.LatLng(latitude, longitude));
+        }
+    }
+    
   script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCVzUDL6_ZqNEFCBRlmwll8KMqChbKfRMM&callback=initMap')
 
